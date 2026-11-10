@@ -1,0 +1,5 @@
+package com.wedding.management.domain.enums;
+
+public enum AuditAction {
+    CREATE, UPDATE, DELETE, RESTORE, CHECKIN, UNDO_CHECKIN, IMPORT, EXPORT, LOGIN, BACKUP, RESTORE_BACKUP, STATUS_CHANGE, ASSIGN, UNASSIGN
+}

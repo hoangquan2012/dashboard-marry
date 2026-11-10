@@ -1,0 +1,8 @@
+# Development profile: demo data is seeded once (idempotent), Swagger is enabled.
+app:
+  seed:
+    demo-data: ${APP_SEED_DEMO_DATA:true}
+
+logging:
+  level:
+    com.wedding.management: ${APP_LOG_LEVEL:DEBUG}

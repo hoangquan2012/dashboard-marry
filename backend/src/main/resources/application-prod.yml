@@ -1,0 +1,14 @@
+# Production profile: clean database, no demo data, Swagger disabled unless explicitly enabled.
+app:
+  seed:
+    demo-data: false
+
+springdoc:
+  api-docs:
+    enabled: ${SPRINGDOC_ENABLED:false}
+  swagger-ui:
+    enabled: ${SPRINGDOC_ENABLED:false}
+
+logging:
+  level:
+    com.wedding.management: ${APP_LOG_LEVEL:INFO}

@@ -1,0 +1,79 @@
+<mat-sidenav-container class="shell" [class.collapsed]="collapsed() && !isHandset()">
+  <mat-sidenav
+    class="sidebar"
+    [mode]="isHandset() ? 'over' : 'side'"
+    [opened]="drawerOpened()"
+    (openedChange)="drawerOpened.set($event)"
+    [fixedInViewport]="true">
+    <div class="brand">
+      <div class="brand-mark">
+        <mat-icon class="material-symbols-rounded icon-filled">favorite</mat-icon>
+      </div>
+      @if (!collapsed() || isHandset()) {
+        <div class="brand-text">
+          <div class="brand-title serif">Đám cưới</div>
+        </div>
+      }
+    </div>
+
+    @if (!collapsed() || isHandset()) {
+      <div class="couple">
+        <div class="couple-names serif">{{ coupleNames() }}</div>
+        @if (settings()?.weddingDate) {
+          <div class="couple-date">
+            <mat-icon class="material-symbols-rounded">calendar_month</mat-icon>
+            {{ settings()!.weddingDate | viDate }}
+          </div>
+          @if (countdown()) {
+            <div class="couple-countdown">{{ countdown() }}</div>
+          }
+        }
+      </div>
+    }
+
+    <nav class="nav">
+      @for (item of navItems; track item.route) {
+        <a
+          class="nav-item"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [matTooltip]="collapsed() && !isHandset() ? item.label : ''"
+          matTooltipPosition="right">
+          <mat-icon class="material-symbols-rounded">{{ item.icon }}</mat-icon>
+          @if (!collapsed() || isHandset()) {
+            <span>{{ item.label }}</span>
+          }
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <button mat-icon-button class="collapse-btn no-print" (click)="toggleSidebar()" [matTooltip]="collapsed() ? 'Mở rộng' : 'Thu gọn'">
+        <mat-icon class="material-symbols-rounded">{{ collapsed() ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+      </button>
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="content">
+    <header class="app-header">
+      <button mat-icon-button class="menu-btn" (click)="toggleSidebar()" aria-label="Mở menu">
+        <mat-icon class="material-symbols-rounded">menu</mat-icon>
+      </button>
+      <div class="header-couple">
+        <div class="names serif">{{ coupleNames() }}</div>
+        @if (settings()?.weddingDate) {
+          <div class="date">
+            {{ settings()!.weddingDate | viDate: 'long' }}
+            @if (countdown()) {
+              <span class="countdown">· {{ countdown() }}</span>
+            }
+          </div>
+        }
+      </div>
+    </header>
+
+    <main class="main">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

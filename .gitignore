@@ -1,0 +1,37 @@
+# Secrets & local env
+.env
+.env.local
+*.pem
+*.p12
+*.jks
+
+# Uploads / backups generated at runtime
+uploads/
+backend/uploads/
+*.log
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+*.iml
+.vscode/
+.cursor/
+
+# Java / Maven
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+hs_err_pid*
+
+# Node / Angular
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/.tmp/
+
+# Local PostgreSQL binaries (dev machine only)
+tools/
+
+# Test / coverage
+coverage/
+*.lcov

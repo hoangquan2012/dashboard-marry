@@ -1,0 +1,56 @@
+<h2 mat-dialog-title class="dialog-title">{{ data.guest ? 'Sửa khách mời' : 'Thêm khách mời' }}</h2>
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content>
+    <div class="form-grid">
+      <mat-form-field class="full">
+        <mat-label>Họ và tên</mat-label>
+        <input matInput formControlName="fullName" required />
+        @if (form.controls.fullName.hasError('required')) {
+          <mat-error>Vui lòng nhập họ và tên</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Số điện thoại</mat-label>
+        <input matInput formControlName="phone" inputmode="tel" />
+        @if (form.controls.phone.hasError('pattern')) {
+          <mat-error>Số điện thoại không hợp lệ</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Thuộc bên</mat-label>
+        <mat-select formControlName="side" required>
+          @for (o of sideOptions; track o.value) {
+            <mat-option [value]="o.value">{{ o.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Nhóm khách</mat-label>
+        <mat-select formControlName="category">
+          @for (o of categoryOptions; track o.value) {
+            <mat-option [value]="o.value">{{ o.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Quan hệ</mat-label>
+        <input matInput formControlName="relationship" placeholder="Bạn, họ hàng..." />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Tiền mừng</mat-label>
+        <input matInput appMoneyInput formControlName="giftAmount" />
+        <span matTextSuffix>₫</span>
+      </mat-form-field>
+      <mat-form-field class="full">
+        <mat-label>Ghi chú</mat-label>
+        <textarea matInput formControlName="note" rows="2"></textarea>
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close>Hủy</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
+      {{ data.guest ? 'Lưu' : 'Thêm' }}
+    </button>
+  </mat-dialog-actions>
+</form>

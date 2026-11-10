@@ -1,0 +1,113 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <div class="eyebrow">Khách mời</div>
+      <h1>Danh sách khách mời</h1>
+    </div>
+    <div class="actions">
+      <button mat-flat-button color="primary" (click)="openForm()">
+        <mat-icon class="material-symbols-rounded">person_add</mat-icon>
+        Thêm khách
+      </button>
+    </div>
+  </div>
+
+  @if (stats(); as s) {
+    <div class="stats-row">
+      <div class="stat"><span class="num">{{ s.total | viNumber }}</span><span class="lbl">Tổng khách</span></div>
+      <div class="stat groom"><span class="num">{{ s.groom | viNumber }}</span><span class="lbl">Nhà trai</span></div>
+      <div class="stat bride"><span class="num">{{ s.bride | viNumber }}</span><span class="lbl">Nhà gái</span></div>
+    </div>
+  }
+
+  <form class="toolbar" [formGroup]="filterForm">
+    <mat-form-field class="search-field">
+      <mat-icon matPrefix class="material-symbols-rounded">search</mat-icon>
+      <input matInput formControlName="q" placeholder="Tìm theo tên, số điện thoại..." />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Bên</mat-label>
+      <mat-select formControlName="side">
+        <mat-option [value]="null">Tất cả</mat-option>
+        @for (o of sideOptions; track o.value) {
+          <mat-option [value]="o.value">{{ o.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Nhóm</mat-label>
+      <mat-select formControlName="category">
+        <mat-option [value]="null">Tất cả</mat-option>
+        @for (o of categoryOptions; track o.value) {
+          <mat-option [value]="o.value">{{ o.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    @if (hasActiveFilter()) {
+      <button mat-button type="button" (click)="clearFilters()">Bỏ lọc</button>
+    }
+  </form>
+
+  @if (loading() && !page()) {
+    <app-loading />
+  } @else if (error()) {
+    <app-error-state [message]="error()!" (retry)="reload()" />
+  } @else if (page() && page()!.totalElements === 0) {
+    <div class="card">
+      <app-empty
+        icon="person_search"
+        [title]="hasActiveFilter() ? 'Không tìm thấy khách' : 'Chưa có khách mời'"
+        [message]="hasActiveFilter() ? 'Thử đổi từ khóa hoặc bỏ lọc.' : 'Thêm khách mời đầu tiên.'"
+        [actionText]="hasActiveFilter() ? null : 'Thêm khách'"
+        (action)="openForm()" />
+    </div>
+  } @else if (page()) {
+    <div class="table-wrapper" [class.dim]="loading()">
+      <table mat-table [dataSource]="page()!.content">
+        <ng-container matColumnDef="fullName">
+          <th mat-header-cell *matHeaderCellDef>Khách mời</th>
+          <td mat-cell *matCellDef="let g">
+            <div class="cell-main">{{ g.fullName }}</div>
+            <div class="cell-sub">@if (g.phone) { {{ g.phone }} } @else { Chưa có SĐT }</div>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="side">
+          <th mat-header-cell *matHeaderCellDef>Bên</th>
+          <td mat-cell *matCellDef="let g"><app-side-chip [side]="g.side" /></td>
+        </ng-container>
+        <ng-container matColumnDef="category">
+          <th mat-header-cell *matHeaderCellDef>Nhóm</th>
+          <td mat-cell *matCellDef="let g">{{ g.category | label: 'category' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="gift">
+          <th mat-header-cell *matHeaderCellDef class="num">Tiền mừng</th>
+          <td mat-cell *matCellDef="let g" class="num">
+            @if (g.giftCount > 0) {
+              <span class="money">{{ g.giftTotal | vnd }}</span>
+            } @else {
+              <span class="muted">—</span>
+            }
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let g" class="actions-cell">
+            <button mat-icon-button (click)="openForm(g)" matTooltip="Sửa">
+              <mat-icon class="material-symbols-rounded">edit</mat-icon>
+            </button>
+            <button mat-icon-button (click)="remove(g)" matTooltip="Xóa">
+              <mat-icon class="material-symbols-rounded">delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns"></tr>
+      </table>
+      <mat-paginator
+        [length]="page()!.totalElements"
+        [pageIndex]="pageIndex()"
+        [pageSize]="pageSize()"
+        (page)="onPage($event)"></mat-paginator>
+    </div>
+  }
+</div>

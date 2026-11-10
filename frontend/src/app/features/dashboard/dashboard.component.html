@@ -1,0 +1,46 @@
+<div class="page dashboard">
+  <div class="page-header">
+    <div>
+      <div class="eyebrow">Tổng quan</div>
+      <h1>Đám cưới {{ data()?.groomName ?? '' }} &amp; {{ data()?.brideName ?? '' }}</h1>
+      <div class="subtitle">
+        @if (data()?.weddingDate) {
+          {{ data()!.weddingDate | viDate: 'long' }}
+          @if (countdownLabel(figures()?.daysUntilWedding)) {
+            · {{ countdownLabel(figures()?.daysUntilWedding) }}
+          }
+        }
+      </div>
+    </div>
+  </div>
+
+  @if (loading() && !data()) {
+    <app-loading />
+  } @else if (error()) {
+    <app-error-state [message]="error()!" (retry)="load()" />
+  } @else if (figures()) {
+    <div class="grid cols-4 kpis">
+      <a routerLink="/guests" class="kpi-link">
+        <app-stat-card label="Khách mời" [value]="figures()!.totalGuests | viNumber" icon="groups" tone="burgundy"
+          [sub]="(figures()!.groomGuests | viNumber) + ' nhà trai · ' + (figures()!.brideGuests | viNumber) + ' nhà gái'" />
+      </a>
+      <a routerLink="/guests" class="kpi-link">
+        <app-stat-card label="Tiền mừng" [value]="figures()!.giftTotal | vnd" icon="redeem" tone="gold"
+          [sub]="(figures()!.giverCount | viNumber) + ' khách đã mừng'" />
+      </a>
+      <a routerLink="/expenses" class="kpi-link">
+        <app-stat-card label="Chi phí" [value]="figures()!.expenseActual | vnd" icon="receipt_long" tone="danger"
+          [sub]="'Đã trả ' + (figures()!.expensePaid | vnd)" />
+      </a>
+      <app-stat-card label="Thu − chi" [value]="figures()!.balance | vnd" icon="balance"
+        [tone]="figures()!.balance < 0 ? 'warning' : 'success'"
+        sub="Tiền mừng trừ chi phí thực tế" />
+    </div>
+
+    <div class="grid cols-3 charts">
+      <app-chart-card title="Khách nhà trai / nhà gái" icon="groups" type="doughnut" [data]="guestsBySide()" [options]="doughnutOptions" [height]="240" />
+      <app-chart-card title="Tiền mừng theo bên" icon="redeem" type="bar" [data]="giftsBySide()" [options]="moneyBarOptions" [height]="240" />
+      <app-chart-card title="Chi phí theo hạng mục" icon="donut_small" type="doughnut" [data]="expensesByCategory()" [options]="moneyDoughnutOptions" [height]="240" />
+    </div>
+  }
+</div>
