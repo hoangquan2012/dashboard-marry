@@ -1,0 +1,81 @@
+name: Deploy frontend to GitHub Pages
+
+# Builds the Angular app and publishes it to https://<user>.github.io/<repo>/
+# The backend URL comes from the repository variable API_URL
+# (Settings → Secrets and variables → Actions → Variables), e.g.
+#   https://wedding-backend.onrender.com/api
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/deploy-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Check API_URL variable
+        env:
+          API_URL: ${{ vars.API_URL }}
+        run: |
+          if [ -z "$API_URL" ]; then
+            echo "::error::Repository variable API_URL is not set (e.g. https://wedding-backend.onrender.com/api)"
+            exit 1
+          fi
+
+      - name: Point frontend at the hosted backend
+        env:
+          API_URL: ${{ vars.API_URL }}
+        run: |
+          cat > src/environments/environment.ts <<EOF
+          export const environment = {
+            production: true,
+            apiUrl: '${API_URL}'
+          };
+          EOF
+
+      - run: npm ci --legacy-peer-deps
+
+      - name: Build
+        run: npx ng build --configuration production --base-href "/${{ github.event.repository.name }}/"
+
+      # GitHub Pages has no SPA fallback: serve index.html for unknown paths (deep links / refresh).
+      - name: SPA fallback
+        run: cp dist/frontend/browser/index.html dist/frontend/browser/404.html
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/dist/frontend/browser
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
