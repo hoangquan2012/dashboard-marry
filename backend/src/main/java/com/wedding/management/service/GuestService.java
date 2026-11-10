@@ -364,7 +364,8 @@ public class GuestService {
         List<GuestResponse> out = new ArrayList<>(guests.size());
         for (Guest g0 : guests) {
             Guest g = withGroup.getOrDefault(g0.getId(), g0);
-            List<Invitation> invitations = invByGuest.getOrDefault(g.getId(), List.of());
+            // mutable copy: a guest may have no invitations (e.g. no events yet), and List.of() cannot be sorted
+            List<Invitation> invitations = new ArrayList<>(invByGuest.getOrDefault(g.getId(), List.of()));
             invitations.sort((a, b) -> a.getEvent().getEventDate().compareTo(b.getEvent().getEventDate()));
             List<TableAssignment> tables = tablesByGuest.getOrDefault(g.getId(), List.of());
             List<InvitationResponse> invResponses = InvitationService.toResponses(invitations, tables);
